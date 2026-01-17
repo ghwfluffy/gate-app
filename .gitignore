@@ -2,3 +2,6 @@
 pki/data
 nginx/venv
 secrets
+www/index.php
+www/index.gp
+www/manifest.json

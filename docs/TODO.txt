@@ -51,6 +51,6 @@
     [x] Create simplie js replay script
     [x] Host on ghwsec
     [x] Test from my phone
-[ ] Finalize
-    [ ] Add PHP-enforced password protection to js gate app
-    [ ] Create custom gif animations for throbber
+[x] Finalize
+    [x] Add PHP-enforced password protection to js gate app
+    [x] Create custom gif animations for throbber

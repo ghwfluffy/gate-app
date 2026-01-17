@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <link rel="manifest" href="/gate/manifest.json">
+  <meta name="theme-color" content="#192e75">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Gate Open</title>
@@ -10,39 +12,38 @@
     .ok { color: #0a7a0a; }
     .err { color: #b00020; }
     button {
-      background: #d32f2f; color: #fff; border: 0; border-radius: 10px;
+      background: #2f2fd3; color: #fff; border: 0; border-radius: 10px;
       padding: 12px 20px; font-size: 16px; font-weight: 700; cursor: pointer;
+      width: 140px;
+      height: 100px;
     }
     button:disabled { opacity: 0.6; cursor: not-allowed; }
-    .row { display: flex; align-items: center; gap: 12px; }
+    .button.success { background: #25b325; }
+    .button.failed { background: #d32f2f; }
+    .row { display: flex; align-items: center; gap: 12px; padding: 12px 20px; }
 
-    /* Throbber */
-    #spinner {
-      width: 18px; height: 18px; border: 3px solid rgba(0,0,0,0.15);
-      border-top-color: rgba(0,0,0,0.7); border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      visibility: hidden; /* shown during work */
-    }
-    #spinner.on { visibility: visible; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .throbber { visibility: hidden; }
+    .throbber.on { visibility: visible; }
 
     pre { background: #f6f8fa; padding: 10px; border-radius: 10px; overflow: auto; }
   </style>
 </head>
 <body>
-  <div id="msg"></div>
+  <div class="row">
+    <div id="msg"></div>
+  </div>
 
   <div class="row">
-    <button id="openRight">Open Right Gate</button>
+    <button class="button" id="openRight">Open Right Gate</button>
+    <img class="throbber" src="cats.gif" id="throbberRight" height=100px />
   </div>
   <div class="row">
-    <button id="openLeft">Open Left Gate</button>
+    <button class="button" id="openLeft">Open Left Gate</button>
+    <img class="throbber" src="cats.gif" id="throbberLeft" height=100px />
   </div>
   <div class="row">
-    <button id="openGym">Open Gym</button>
-  </div>
-  <div class="row">
-    <div id="spinner" aria-label="loading"></div>
+    <button class="button" id="openGym">Open Gym</button>
+    <img class="throbber" src="flex.gif" id="throbberGym" height=100px />
   </div>
 
   <pre id="debug" style="display:none;"></pre>
@@ -53,14 +54,29 @@
     const REFRESH_TOKEN = "%REFRESH_TOKEN%";
     // ================================================================================================
 
-    const openBtn = document.getElementById("openBtn");
-    const spinner = document.getElementById("spinner");
+    const openRight = document.getElementById("openRight");
+    const openLeft = document.getElementById("openLeft");
+    const openGym = document.getElementById("openGym");
+
+    const throbberRight = document.getElementById("throbberRight");
+    const throbberLeft = document.getElementById("throbberLeft");
+    const throbberGym = document.getElementById("throbberGym");
+
     const msgEl   = document.getElementById("msg");
     const debugEl = document.getElementById("debug");
 
-    function setLoading(btn, isLoading) {
+    function setLoading(btn, throbber, isLoading) {
       btn.disabled = isLoading;
-      spinner.classList.toggle("on", isLoading);
+      throbber.classList.toggle("on", isLoading);
+    }
+
+    function resetSuccess(btn) {
+      btn.classList.toggle("success", false);
+      btn.classList.toggle("failed", false);
+    }
+    function setSuccess(btn, success) {
+      btn.classList.toggle(success ? "success" : "failed", true);
+      setTimeout(() => { resetSuccess(btn); }, 5000);
     }
 
     function setMsg(text, cls) {
@@ -68,16 +84,22 @@
       msgEl.textContent = text || "";
     }
 
+    function resetMsg() {
+      setMsg("Ghw Gate App", "");
+    }
+
     function showError(err) {
       const text = (err && err.message) ? err.message : String(err);
       setMsg(text, "err");
     }
 
-    function makeOpenHandler({ doorId, doorName }) {
+    resetMsg();
+    function makeOpenHandler({ doorId, doorName, throbber }) {
       return async (ev) => {
-        setMsg("", "");
+        resetMsg();
         const btn = ev.currentTarget;
-        setLoading(btn, true);
+        setLoading(btn, throbber, true);
+        resetSuccess(btn);
 
         try {
           // 1) Exchange refresh token for access token
@@ -122,20 +144,23 @@
 
           if (openJson?.status === "ok") {
             setMsg(`${doorName} opened`, "ok");
+            setSuccess(btn, true);
           } else {
             throw new Error(`Unexpected response: ${JSON.stringify(openJson)}`);
+            setSuccess(btn, false);
           }
 
         } catch (e) {
           showError(e);
+          setSuccess(btn, false);
         } finally {
-          setLoading(btn, false);
+          setLoading(btn, throbber, false);
         }
       };
     }
-    openRight.addEventListener("click", makeOpenHandler({doorId: 8211, doorName: "Right gate"}));
-    openLeft.addEventListener("click", makeOpenHandler({doorId: 8210, doorName: "Left gate"}));
-    openGym.addEventListener("click", makeOpenHandler({doorId: 8209, doorName: "Gym door"}));
+    openRight.addEventListener("click", makeOpenHandler({doorId: 8211, doorName: "Right gate", throbber: throbberRight}));
+    openLeft.addEventListener("click", makeOpenHandler({doorId: 8210, doorName: "Left gate", throbber: throbberLeft}));
+    openGym.addEventListener("click", makeOpenHandler({doorId: 8209, doorName: "Gym door", throbber: throbberGym}));
   </script>
 </body>
 </html>
