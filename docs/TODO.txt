@@ -29,7 +29,19 @@ Research
         [x] Enable Debug USB
         [x] adb shell
     [x] Forward DNS to desktop
-[ ] Capture traffic / reverse engineer
+[\] Capture traffic / reverse engineer
+    [x] Reverse engineer open gate/door API
+    [x] curl test replay attack open gate
+    [\] Determine how to create auth token
+        [x] Wait for token to expire and check for token issue request
+            - none
+        [x] Inspect filesystem persistent storage for an RSA private key
+            - none found
+        [\] Inspect apk source
+    [x] Map gate/door IDs
+        Gym Door: 8209
+        Left Gate: 8210
+        Right Gate: 8211
 [ ] PoC
     [ ] Create simplie js replay script
     [ ] Host on ghwsec

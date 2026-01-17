@@ -1,0 +1,49 @@
+proxy-1  |  * Serving Flask app 'proxy'
+proxy-1  |  * Debug mode: off
+proxy-1  | WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+proxy-1  |  * Running on all addresses (0.0.0.0)
+proxy-1  |  * Running on http://127.0.0.1:8080
+proxy-1  |  * Running on http://192.168.1.2:8080
+proxy-1  | Press CTRL+C to quit
+proxy-1  | 
+proxy-1  | === Incoming Request ===
+proxy-1  | 127.0.0.1 -> GET /api/v1/user/get_user_data?
+proxy-1  | --- Headers ---
+proxy-1  | Host: api-v2.gatewise.com
+proxy-1  | X-Real-Ip: 192.168.1.11
+proxy-1  | X-Forwarded-For: 192.168.1.11
+proxy-1  | X-Forwarded-Proto: https
+proxy-1  | Accept: application/json, text/plain, */*
+proxy-1  | Device-Token: <UUID>
+proxy-1  | Cache-Control: no-cache
+proxy-1  | Authorization: Bearer <JWT>
+proxy-1  | Accept-Encoding: gzip
+proxy-1  | User-Agent: okhttp/4.12.0
+proxy-1  | --- Body (0 bytes) ---
+proxy-1  | 
+proxy-1  | === Upstream Response ===
+proxy-1  | 200 OK
+proxy-1  | --- Headers ---
+proxy-1  | Date: Sat, 17 Jan 2026 17:42:04 GMT
+proxy-1  | Content-Type: application/json
+proxy-1  | Transfer-Encoding: chunked
+proxy-1  | Connection: keep-alive
+proxy-1  | CF-Ray: 9bf7a5a57cfdf085-DFW
+proxy-1  | CF-Cache-Status: DYNAMIC
+proxy-1  | Server: cloudflare
+proxy-1  | content-security-policy: default-src 'self'; script-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://firebase.googleapis.com;
+proxy-1  | x-content-type-options: nosniff
+proxy-1  | x-frame-options: DENY
+proxy-1  | x-request-id: dfr1sta3ngfh-1c7r-siw
+proxy-1  | x-xss-protection: 1; mode=block
+proxy-1  | Vary: accept-encoding
+proxy-1  | Report-To: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=WxoK1tN918PEeEn343yl%2BNjmaVE8M1NX7x0Ij%2FBQThvU2qcJVIVdfoqo5CCUuKF662kEE2JUB%2F1vPvOLFLDJLGfGXvBl1pzPYIuX7UWKrOVK%2FQ%3D%3D"}]}
+proxy-1  | Nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+proxy-1  | Content-Encoding: gzip
+proxy-1  | --- Body dump (up to 65536 bytes; got 6250 bytes) ---
+proxy-1  | {"communities":[{"id":2524,"created_at":"2023-03-23T19:20:25.175169Z","name":"[REDACTED]","address":"[REDACTED]","image_url":"[REDACTED_URL]","office_email":"[REDACTED]","office_phone":"[REDACTED]","hotline":null,"timezone":{"name":"America/Chicago","offset":300},"management_company_id":478,"allow_send_invite":true,"geo":{"x":null,"y":null},"quickbooks_id":"[REDACTED]","proximity_open_enabled":false,"proximity_uuid":null,"comment":null,"comment_updated_at":null,"archived":false,"show_dashboard":false,"nfc_en":false,"support_tap_to_open":false,"reminder_message":"","show_reminder":false,"support_gate_camera":false,"support_lpr_camera":false,"support_self_guided_tour":false,"support_unit_lock":false,"support_virtual_callbox":false,"virtual_callbox_settings":null,"support_sublease":false,"local_time":"2026-01-17T11:42:04-06:00","management_company":{"id":478,"created_at":"2022-09-22T13:20:47.502468Z","name":"[REDACTED]","image_url":"[REDACTED_URL]","office_email":null,"office_phone":null,"address":null},"memberships":[{"id":1000395,"created_at":"2025-03-07T00:18:58.891572Z","status_updated_at":"2025-03-07T00:18:58.891572Z","community_id":2524,"community_name":"[REDACTED]","phone":"[REDACTED]","email":null,"name":"[REDACTED]","unit":"[REDACTED]","invitation_sent":true,"remote":null,"role":"resident","groups":[],"active":true,"invited":false,"favorite_access_points_ids":[],"count_tokens":null,"is_minor":false,"can_sublease":false}],"units":[],"access_points":[{"id":8210,"name":"Left Car Gate Entrance","created_at":"2023-04-02T18:38:51.278341Z","community_id":2524,"allow_remote":true,"allow_share":false,"show_in_app":true,"active":true,"access_point_type_id":1,"relay_id":0,"bluetooth_id":"[REDACTED]","support_nfc":true,"gsm_hardware_version":"AM2","gsm_firmware_version":"","gsm_id":"[REDACTED]","gsm_to_phone_number":"","gsm_from_phone_number":"[REDACTED]","index":0,"working_hours":null,"public_available_hours":null,"device_info":{"imei":"[REDACTED]","ble":"[REDACTED]","ccid":"[REDACTED]","version":"1.0.13","hw":"AM1-V5","phones":"[REDACTED]","public_hours":"[REDACTED]","loe":0,"sae":2,"god":5,"rssi":-55,"rsrp":-82,"rsrq":-11,"snr":154,"has_power":1,"ts":1768669256,"vin":23.27812,"vbat":0,"buzzer":1},"device_info_updated_at":"2026-01-17T17:04:23.459272Z","is_gsm":true,"always_opened":false,"support_keypad":false,"iot_service":"aws","buzzer":true,"god":5,"type_title":"Car Gate","type":"car_gate","fallback_method":null,"master_key_enable":false,"device_info_successful_sync_at":"2026-01-17T17:04:23.459272Z","should_sync_with_remotes":true,"last_remote_sync_timestamp":"2026-01-16T22:15:53Z","last_sync_time":"2026-01-07T19:30:34.098Z","last_reset_time":"2026-01-12T22:52:19.647Z","comment":null,"comment_updated_at":null,"camera_id":null,"issue_type":null,"secret":null,"package_room_deliveries_id":null,"gsm_apn":null,"camera_sn":null},{"id":8211,"name":"Right Car Gate Entrance","created_at":"2023-04-02T18:39:48.603241Z","community_id":2524,"allow_remote":true,"allow_share":false,"show_in_app":true,"active":true,"access_point_type_id":1,"relay_id":0,"bluetooth_id":"[REDACTED]","support_nfc":true,"gsm_hardware_version":"AM2","gsm_firmware_version":"","gsm_id":"[REDACTED]","gsm_to_phone_number":"","gsm_from_phone_number":"[REDACTED]","index":1,"working_hours":null,"public_available_hours":null,"device_info":{"imei":"[REDACTED]","ble":"[REDACTED]","ccid":"[REDACTED]","version":"1.0.13","hw":"AM1-V5","phones":"[REDACTED]","public_hours":"[REDACTED]","loe":0,"sae":2,"god":5,"rssi":-82,"rsrp":-110,"rsrq":-11,"snr":150,"has_power":1,"ts":1761222472,"vin":22.780193,"vbat":0,"buzzer":1},"device_info_updated_at":"2026-01-17T17:04:22.713366Z","is_gsm":true,"always_opened":false,"support_keypad":false,"iot_service":"aws","buzzer":true,"god":5,"type_title":"Car Gate","type":"car_gate","fallback_method":null,"master_key_enable":false,"device_info_successful_sync_at":"2026-01-17T17:04:22.713366Z","should_sync_with_remotes":true,"last_remote_sync_timestamp":"2026-01-16T23:23:40Z","last_sync_time":"2026-01-07T19:30:44.175Z","last_reset_time":null,"comment":null,"comment_updated_at":null,"camera_id":null,"issue_type":"None","secret":null,"package_room_deliveries_id":null,"gsm_apn":null,"camera_sn":null},{"id":8209,"name":"Gym Door","created_at":"2023-04-02T18:38:03.065553Z","community_id":2524,"allow_remote":true,"allow_share":false,"show_in_app":true,"active":true,"access_point_type_id":2,"relay_id":0,"bluetooth_id":"[REDACTED]","support_nfc":true,"gsm_hardware_version":"AM2","gsm_firmware_version":"","gsm_id":"[REDACTED]","gsm_to_phone_number":"","gsm_from_phone_number":"[REDACTED]","index":2,"working_hours":[],"public_available_hours":[{"weekday":1,"weekday_start_time":"08:00:00","duration":600},{"weekday":2,"weekday_start_time":"08:00:00","duration":600},{"weekday":3,"weekday_start_time":"08:00:00","duration":600},{"weekday":4,"weekday_start_time":"08:00:00","duration":600},{"weekday":5,"weekday_start_time":"08:00:00","duration":600},{"weekday":6,"weekday_start_time":"08:00:00","duration":540}],"device_info":{"imei":"[REDACTED]","ble":"[REDACTED]","ccid":"[REDACTED]","version":"1.0.13","hw":"AM1-V5","phones":"[REDACTED]","public_hours":"[REDACTED]","loe":0,"sae":2,"god":5,"rssi":-58,"rsrp":-87,"rsrq":-13,"snr":26,"has_power":1,"ts":1768668995,"vin":11.421217,"vbat":0,"buzzer":1},"device_info_updated_at":"2026-01-17T17:04:24.320192Z","is_gsm":true,"always_opened":null}]}]}
+proxy-1  | 127.0.0.1 - - [17/Jan/2026 17:42:04] "GET /api/v1/user/get_user_data HTTP/1.1" 200 -
+proxy-1  | 2026/01/17 17:42:04 [warn] 11#11: *1 upstream sent duplicate header line: "Date: Sat, 17 Jan 2026 17:42:04 GMT", previous value: "Date: Sat, 17 Jan 2026 17:42:04 GMT", ignored while reading response header from upstream, client: 192.168.1.11, server: api-v2.gatewise.com, request: "GET /api/v1/user/get_user_data HTTP/1.1", upstream: "http://127.0.0.1:8080/api/v1/user/get_user_data", host: "api-v2.gatewise.com"
+proxy-1  | 2026/01/17 17:42:04 [warn] 11#11: *1 upstream sent duplicate header line: "Server: cloudflare", previous value: "Server: Werkzeug/3.0.6 Python/3.12.12", ignored while reading response header from upstream, client: 192.168.1.11, server: api-v2.gatewise.com, request: "GET /api/v1/user/get_user_data HTTP/1.1", upstream: "http://127.0.0.1:8080/api/v1/user/get_user_data", host: "api-v2.gatewise.com"
+proxy-1  | 192.168.1.11 - - [17/Jan/2026:17:42:04 +0000] "GET /api/v1/user/get_user_data HTTP/1.1" 200 8507 rt=0.226 urt=0.226 host="api-v2.gatewise.com" sni="api-v2.gatewise.com" ref="-" ua="okhttp/4.12.0" xff="-" ct="-" cl="-"
+proxy-1  | 

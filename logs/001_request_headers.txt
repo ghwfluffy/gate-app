@@ -1,0 +1,46 @@
+JWT:
+{
+  "alg": "RS256",
+  "kid": "082e975e07dfa4960c7b7b4fc1d10f916dc2f55b",
+  "typ": "JWT"
+}
+{
+  "iss": "https://securetoken.google.com/gatewisemultifamily",
+  "aud": "gatewisemultifamily",
+  "auth_time": 1768665783,
+  "user_id": "8msaodK2xNRxAZQi7xlzGK57XXU5",
+  "sub": "8msaodK2xNRxAZQi7xlzGK57XXU5",
+  "iat": 1768671274,
+  "exp": 1768674874,
+  "phone_number": "+1XXXXXXXXXX",
+  "firebase": {
+    "identities": {
+      "phone": [
+        "+1XXXXXXXXXX"
+      ]
+    },
+    "sign_in_provider": "phone"
+  }
+}
+
+
+
+
+
+
+
+
+proxy-1  | === Incoming Request ===
+proxy-1  | 127.0.0.1 -> GET /api/v1/user/get_user_data?
+proxy-1  | --- Headers ---
+proxy-1  | Host: api-v2.gatewise.com
+proxy-1  | X-Real-Ip: 192.168.1.11
+proxy-1  | X-Forwarded-For: 192.168.1.11
+proxy-1  | X-Forwarded-Proto: https
+proxy-1  | Accept: application/json, text/plain, */*
+proxy-1  | Device-Token: <UUID>
+proxy-1  | Cache-Control: no-cache
+proxy-1  | Authorization: Bearer <JWT>
+proxy-1  | Accept-Encoding: gzip
+proxy-1  | User-Agent: okhttp/4.12.0
+proxy-1  | --- Body (0 bytes) ---
