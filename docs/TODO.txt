@@ -29,10 +29,10 @@ Research
         [x] Enable Debug USB
         [x] adb shell
     [x] Forward DNS to desktop
-[\] Capture traffic / reverse engineer
+[x] Capture traffic / reverse engineer
     [x] Reverse engineer open gate/door API
     [x] curl test replay attack open gate
-    [\] Determine how to create auth token
+    [x] Determine how to create auth token
         [x] Wait for token to expire and check for token issue request
             - none
         [x] Inspect filesystem persistent storage for an RSA private key
@@ -41,12 +41,14 @@ Research
             [x] Ask codex where the JWT comes from
             [x] Find Firebase refresh token
                 /data/user/0/com.gatewisemultifamily.android/shared_prefs/com.google.firebase.auth.api.Store.W0RFRkFVTFRd+MTo5M
-        [\] Replicate firebase API to retrieve auth token
+        [x] Replicate firebase API to retrieve auth token
+            [x] Find web API key for app
+                resources/res/values/strings.xml - google_api_key
     [x] Map gate/door IDs
         Gym Door: 8209
         Left Gate: 8210
         Right Gate: 8211
-[ ] PoC
+[\] PoC
     [ ] Create simplie js replay script
     [ ] Host on ghwsec
     [ ] Test from my phone
