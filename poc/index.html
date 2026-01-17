@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Gate Open</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; }
+    #msg { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+    .ok { color: #0a7a0a; }
+    .err { color: #b00020; }
+    button {
+      background: #d32f2f; color: #fff; border: 0; border-radius: 10px;
+      padding: 12px 20px; font-size: 16px; font-weight: 700; cursor: pointer;
+    }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .row { display: flex; align-items: center; gap: 12px; }
+
+    /* Throbber */
+    #spinner {
+      width: 18px; height: 18px; border: 3px solid rgba(0,0,0,0.15);
+      border-top-color: rgba(0,0,0,0.7); border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      visibility: hidden; /* shown during work */
+    }
+    #spinner.on { visibility: visible; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    pre { background: #f6f8fa; padding: 10px; border-radius: 10px; overflow: auto; }
+  </style>
+</head>
+<body>
+  <div id="msg"></div>
+
+  <div class="row">
+    <button id="openRight">Open Right Gate</button>
+  </div>
+  <div class="row">
+    <button id="openLeft">Open Left Gate</button>
+  </div>
+  <div class="row">
+    <button id="openGym">Open Gym</button>
+  </div>
+  <div class="row">
+    <div id="spinner" aria-label="loading"></div>
+  </div>
+
+  <pre id="debug" style="display:none;"></pre>
+
+  <script>
+    // ======= HARDCODED SECRETS (be careful: this is visible to anyone who can view the page source) =======
+    const WEB_API_KEY   = "%WEB_API_KEY%";
+    const REFRESH_TOKEN = "%REFRESH_TOKEN%";
+    // ================================================================================================
+
+    const openBtn = document.getElementById("openBtn");
+    const spinner = document.getElementById("spinner");
+    const msgEl   = document.getElementById("msg");
+    const debugEl = document.getElementById("debug");
+
+    function setLoading(btn, isLoading) {
+      btn.disabled = isLoading;
+      spinner.classList.toggle("on", isLoading);
+    }
+
+    function setMsg(text, cls) {
+      msgEl.className = cls || "";
+      msgEl.textContent = text || "";
+    }
+
+    function showError(err) {
+      const text = (err && err.message) ? err.message : String(err);
+      setMsg(text, "err");
+    }
+
+    function makeOpenHandler({ doorId, doorName }) {
+      return async (ev) => {
+        setMsg("", "");
+        const btn = ev.currentTarget;
+        setLoading(btn, true);
+
+        try {
+          // 1) Exchange refresh token for access token
+          const tokenUrl = `https://securetoken.googleapis.com/v1/token?key=${encodeURIComponent(WEB_API_KEY)}`;
+
+          const form = new URLSearchParams();
+          form.set("grant_type", "refresh_token");
+          form.set("refresh_token", REFRESH_TOKEN);
+
+          const tokenResp = await fetch(tokenUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: form.toString(),
+          });
+
+          const tokenJson = await tokenResp.json().catch(() => ({}));
+          if (!tokenResp.ok) {
+            // Google error shape varies; try to surface something useful
+            const detail = tokenJson?.error?.message || tokenJson?.error || JSON.stringify(tokenJson);
+            throw new Error(`Token request failed (${tokenResp.status}): ${detail}`);
+          }
+
+          const accessToken = tokenJson.access_token;
+          if (!accessToken) throw new Error("Token response missing access_token");
+
+          // 2) Call open endpoint with Bearer auth
+          const openResp = await fetch(`https://api-v2.gatewise.com/api/v1/user/community/2524/access_point/${doorId}/open`, {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${accessToken}`,
+              "Accept": "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({}),
+          });
+
+          const openJson = await openResp.json().catch(() => ({}));
+          if (!openResp.ok) {
+            const detail = openJson?.error || openJson?.message || JSON.stringify(openJson);
+            throw new Error(`Open request failed (${openResp.status}): ${detail}`);
+          }
+
+          if (openJson?.status === "ok") {
+            setMsg(`${doorName} opened`, "ok");
+          } else {
+            throw new Error(`Unexpected response: ${JSON.stringify(openJson)}`);
+          }
+
+        } catch (e) {
+          showError(e);
+        } finally {
+          setLoading(btn, false);
+        }
+      };
+    }
+    openRight.addEventListener("click", makeOpenHandler({doorId: 8211, doorName: "Right gate"}));
+    openLeft.addEventListener("click", makeOpenHandler({doorId: 8210, doorName: "Left gate"}));
+    openGym.addEventListener("click", makeOpenHandler({doorId: 8209, doorName: "Gym door"}));
+  </script>
+</body>
+</html>

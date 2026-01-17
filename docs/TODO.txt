@@ -48,10 +48,10 @@ Research
         Gym Door: 8209
         Left Gate: 8210
         Right Gate: 8211
-[\] PoC
-    [ ] Create simplie js replay script
-    [ ] Host on ghwsec
-    [ ] Test from my phone
+[x] PoC
+    [x] Create simplie js replay script
+    [x] Host on ghwsec
+    [x] Test from my phone
 Development
 [ ] Create android app with a button
 [ ] Create API requests from app
