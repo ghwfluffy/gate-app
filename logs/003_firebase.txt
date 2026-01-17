@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <string name="com.google.firebase.auth.FIREBASE_USER">
+        {"cachedTokenState":"{"refresh_token":"226 char url encoded base64","access_token":"jwt 1","expires_in":3600,"token_type":"Bearer","issued_at":1768670274687}","applicationName":"[DEFAULT]","type":"com.google.firebase.auth.internal.DefaultFirebaseUser","userInfos":["{"userId":"redacted","providerId":"firebase","displayName":"","photoUrl":"","email":"","phoneNumber":"+1XXXXXXXXXX","isEmailVerified":false,"rawUserInfo":""}","{"userId":"","providerId":"phone","displayName":"","photoUrl":"","email":"","phoneNumber":"+1XXXXXXXXXX","isEmailVerified":false,"rawUserInfo":""}"],"anonymous":false,"version":"2","userMetadata":{"lastSignInTimestamp":1768664783513,"creationTimestamp":1741306738034}}
+    </string>
+    <string name="com.google.firebase.auth.GET_TOKEN_RESPONSE.UPDO8ZZtkxd1QNf1x6XcQxeOo3s2">
+        {"refresh_token":"Same 226 char url encoded base64","access_token":"jwt 2","expires_in":3600,"token_type":"Bearer","issued_at":1768674065440}
+    </string>
+</map>

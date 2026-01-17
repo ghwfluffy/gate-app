@@ -37,7 +37,11 @@ Research
             - none
         [x] Inspect filesystem persistent storage for an RSA private key
             - none found
-        [\] Inspect apk source
+        [x] Inspect apk source
+            [x] Ask codex where the JWT comes from
+            [x] Find Firebase refresh token
+                /data/user/0/com.gatewisemultifamily.android/shared_prefs/com.google.firebase.auth.api.Store.W0RFRkFVTFRd+MTo5M
+        [\] Replicate firebase API to retrieve auth token
     [x] Map gate/door IDs
         Gym Door: 8209
         Left Gate: 8210
