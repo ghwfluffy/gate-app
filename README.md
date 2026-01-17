@@ -12,7 +12,7 @@ Create a fake Gatewise app I can share with family that will let them open the g
 - nginx - MITM docker compose project w/ python proxy
 - logs - Various artifacts from reverse engineering
 - curl - PoC in curl
-- apk - Gatewise app source
+- apk - Gatewise app source (Removed to reduce repo size)
 - www - The html/js app to open the gate (Requires embedding %REFRESH_TOKEN% with real value)
 - build-php.sh - Embed the refresh token into the html/js file and wrap it in a PHP password protection
 
