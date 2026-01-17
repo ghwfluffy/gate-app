@@ -2,6 +2,9 @@
 
 Create a fake Gatewise app I can share with family that will let them open the gate to my apartment complex
 
+![Gate App](./docs/01-homescreen.png)
+![Open Gate](./docs/02-app.png) ![Opened Gate](./docs/03-open.png)
+
 ## Repository layout
 
 - docs/TODO.txt - TODO list from beginning of project to end
