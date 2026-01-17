@@ -1,4 +1,3 @@
-Research
 [x] Setup Android VM
     [x] Get Android x86 ISO
     [x] Setup VM
@@ -52,8 +51,6 @@ Research
     [x] Create simplie js replay script
     [x] Host on ghwsec
     [x] Test from my phone
-Development
-[ ] Create android app with a button
-[ ] Create API requests from app
-[ ] Install app on my phone
-[ ] Test app
+[ ] Finalize
+    [ ] Add PHP-enforced password protection to js gate app
+    [ ] Create custom gif animations for throbber

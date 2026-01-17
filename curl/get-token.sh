@@ -1,7 +1,8 @@
 #!/bin/bash
 
-REFRESH_TOKEN="<Token Here>"
-WEB_API_KEY="<API Key Here>"
+SECRETS_DIR="$(dirname "${0}")/../secrets"
+REFRESH_TOKEN="$(cat "${SECRETS_DIR}/refresh-token.txt")"
+WEB_API_KEY="$(cat "${SECRETS_DIR}/web-api-key.txt")"
 
 set -x
 curl "https://securetoken.googleapis.com/v1/token?key=${WEB_API_KEY}" \
