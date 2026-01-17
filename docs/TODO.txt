@@ -1,12 +1,25 @@
 Research
-[\] Setup Android VM
-    [\] Get Android x86 ISO
-    [ ] Set location to Texas
-[ ] Setup gatewise
-    [ ] Get gatewise app
-    [ ] Login to gatewise app
-    [ ] Test opening gate
-[ ] Wireshark DNS being used
+[x] Setup Android VM
+    [x] Get Android x86 ISO
+    [x] Setup VM
+        [x] Disable KVM kmod
+        [x] Install android
+        [x] add `nomodeset xforcevesa` to grub
+    [x] Set location to Texas
+[x] Setup gatewise
+    [x] Get gatewise app
+    [x] Run gatewise app: Need Android VM that supports ARM emulation
+        https://sourceforge.net/projects/blissos-x86
+        [x] Get ISO
+        [x] Setup VM
+            [x] Install android
+                [x] setup DOS partition table and format (512M sda1 ext4, 24GB sda2 ext)
+            [x] add `nomodeset xforcevesa` to grub
+        [x] Set location to Texas
+    [x] Login to gatewise app
+    [x] Test opening gate
+[x] Wireshark DNS being used
+    api-v2.gatewise.com:443
 [ ] Setup MITM
     [ ] Generate signing CAs
     [ ] Install CAs into Android VM
