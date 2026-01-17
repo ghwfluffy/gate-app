@@ -1,0 +1,19 @@
+#!/bin/bash
+
+export UPSTREAM="${UPSTREAM:-https://api-v2.gatewise.com}"
+
+python3 /opt/proxy.py --listen 0.0.0.0 --port 8080 --upstream "${UPSTREAM}" &
+PROXY_PID=$!
+
+_term() {
+  # stop proxy
+  kill -TERM "$PROXY_PID" 2>/dev/null || true
+  wait "$PROXY_PID" 2>/dev/null || true
+
+  # stop nginx (PID 1 if it's running as master)
+  kill -TERM 1 2>/dev/null || true
+}
+trap _term INT TERM
+
+# Run nginx in foreground
+exec nginx -g 'daemon off;'

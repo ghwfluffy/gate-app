@@ -22,9 +22,13 @@ Research
     api-v2.gatewise.com:443
 [\] Setup MITM
     [x] Generate signing CAs
-    [\] Setup MITM nginx
-    [ ] Install CAs into Android VM
-    [ ] Forward DNS to desktop
+    [x] Setup MITM nginx
+        [\] Setup python proxy sniffer
+    [x] Install CAs into Android VM
+        [x] VM set to bridged
+        [x] Enable Debug USB
+        [x] adb shell
+    [x] Forward DNS to desktop
 [ ] Capture traffic / reverse engineer
 [ ] PoC
     [ ] Create simplie js replay script

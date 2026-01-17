@@ -1,0 +1,31 @@
+$ openssl x509 -inform PEM -subject_hash_old -in root.crt | head -1
+fcb118d1
+
+4       mount -o remount,rw /
+5       echo '-----BEGIN CERTIFICATE-----
+        MIIDnjCCAoagAwIBAgIUNxG5sXJSXEGNW8jSuqlAsrS4pbswDQYJKoZIhvcNAQEL
+        BQAwVTELMAkGA1UEBhMCVVMxITAfBgNVBAoMGEdodyBUcnVzdCBTZXJ2aWNlcywg
+        SW5jLjEjMCEGA1UEAwwaR2h3IFRydXN0IFNlcnZpY2VzIFJvb3QgQ0EwHhcNMjYw
+        MTE3MTYyMTAzWhcNMzYwMTE1MTYyMTAzWjBVMQswCQYDVQQGEwJVUzEhMB8GA1UE
+        CgwYR2h3IFRydXN0IFNlcnZpY2VzLCBJbmMuMSMwIQYDVQQDDBpHaHcgVHJ1c3Qg
+        U2VydmljZXMgUm9vdCBDQTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
+        AN+WBxo+ajYMw/vAK9uXvRIex2H5hm+njykvq6DEowT2WQmY1bUznOS1QCKGaPfy
+        em5cTPLQQUYQGnKJaJfPQKASZAPmJv7VvQ22K7uwrIvZ8/7kM+RsohguFEQzLpEK
+        Wg3nm6zlKtDengNSU4X+TAXlDHNd+WpwjDyfZ0h2E9N7KrAeW3PqGCa82UY3DYNN
+        5cK++FqdGmdyqd7m/M3wiRGecSok4awr2ggrKlGzYBtCRh8oFMFsev1vBd0OFAud
+        WJdpVoiGMM1UPvM+ESzeQPhEvaBMy2HyCVTKikmqHeZhWJTBcMkNAhaWQXfWtmF/
+        +9uMAkN0bgCrmySo4w4LqRECAwEAAaNmMGQwHQYDVR0OBBYEFJOxsUN8ZkypT4W1
+        f0fgVgOrvYMdMB8GA1UdIwQYMBaAFJOxsUN8ZkypT4W1f0fgVgOrvYMdMBIGA1Ud
+        EwEB/wQIMAYBAf8CAQEwDgYDVR0PAQH/BAQDAgEGMA0GCSqGSIb3DQEBCwUAA4IB
+        AQBrA4igFdFhZyJljy5BdUOQS++YBQEBLloqN81kTnYp2/uzSTGQ4+hCZdO+ixwm
+        NikEbKymfGh97BhJzOn1G0aEpt2LMFVOlvayMq9didDRoEQNeIOY+Cwq1XLlBi9i
+        L7rVYBqi4icDQDNY9ZALXWbQlKxtc9djikCdsmdM/FFVaWuTVbOgCqefRWxPhYD9
+        7uWJxJ8A2XtCqCtKebQJQEIaWuZlKmDSuV0Dh5kSMpSonY4xWkeXB167JScbib+L
+        na4ACbLFqg7T3Z7RyYImxFX0oThK8rQTNWZ2OGgQmcspzJz8lasFUU3boyQOa2k2
+        woWaBYV/QwINvDdZaT410pVF
+        -----END CERTIFICATE-----' > /system/etc/security/cacerts/fcb118d1.0
+6       cat /system/etc/security/cacerts/fcb118d1.0 
+7       chmod 0644 /system/etc/security/cacerts/fcb118d1.0 
+8       chown root:root /system/etc/security/cacerts/fcb118d1.0 
+9       vi /system/etc/hosts
+10      cat /system/etc/hosts

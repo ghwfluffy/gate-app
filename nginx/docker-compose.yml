@@ -1,0 +1,10 @@
+services:
+  proxy:
+    build: .
+    network_mode: host
+    #ports:
+    #  - "443:443"
+    environment:
+      - UPSTREAM=api-v2.gatewise.com
+    volumes:
+      - ../pki/data:/certs:ro
