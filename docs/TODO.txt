@@ -1,0 +1,23 @@
+Research
+[\] Setup Android VM
+    [\] Get Android x86 ISO
+    [ ] Set location to Texas
+[ ] Setup gatewise
+    [ ] Get gatewise app
+    [ ] Login to gatewise app
+    [ ] Test opening gate
+[ ] Wireshark DNS being used
+[ ] Setup MITM
+    [ ] Generate signing CAs
+    [ ] Install CAs into Android VM
+    [ ] Forward DNS to desktop
+[ ] Capture traffic / reverse engineer
+[ ] PoC
+    [ ] Create simplie js replay script
+    [ ] Host on ghwsec
+    [ ] Test from my phone
+Development
+[ ] Create android app with a button
+[ ] Create API requests from app
+[ ] Install app on my phone
+[ ] Test app
