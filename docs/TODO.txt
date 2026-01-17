@@ -20,8 +20,9 @@ Research
     [x] Test opening gate
 [x] Wireshark DNS being used
     api-v2.gatewise.com:443
-[ ] Setup MITM
-    [ ] Generate signing CAs
+[\] Setup MITM
+    [x] Generate signing CAs
+    [\] Setup MITM nginx
     [ ] Install CAs into Android VM
     [ ] Forward DNS to desktop
 [ ] Capture traffic / reverse engineer
