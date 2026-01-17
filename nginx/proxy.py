@@ -29,6 +29,9 @@ HOP_BY_HOP_HEADERS = {
     "trailers",
     "transfer-encoding",
     "upgrade",
+    "x-real-ip",
+    "x-forwarded-for",
+    "x-forwarded-proto",
 }
 
 
@@ -93,17 +96,48 @@ def make_app(upstream: str, timeout: float) -> Flask:
             stream=True,
             timeout=timeout,
         )
+        resp_headers = dict(upstream_resp.headers)
 
-        # Filter upstream response headers
-        resp_headers = _filtered_headers(dict(upstream_resp.headers))
+        # ---- LOG UPSTREAM RESPONSE (status/headers/body) ----
+        sys.stdout.write("\n=== Upstream Response ===\n")
+        sys.stdout.write(f"{upstream_resp.status_code} {upstream_resp.reason}\n")
+        sys.stdout.write("--- Headers ---\n")
+        for k, v in resp_headers.items():
+            sys.stdout.write(f"{k}: {v}\n")
 
-        def generate() -> Iterable[bytes]:
+        # Peek at up to N bytes without breaking streaming to client
+        MAX_DUMP = 64 * 1024  # 64KiB
+        dumped = bytearray()
+        it = upstream_resp.iter_content(chunk_size=8192)
+
+        chunks = []
+        try:
+            for chunk in it:
+                if not chunk:
+                    continue
+                chunks.append(chunk)
+                dumped += chunk
+                break
+            else:
+                first_chunk = b""
+        except Exception as e:
+            sys.stdout.write(f"\n[!] Error reading upstream body: {e}\n")
+            first_chunk = b""
+        finally:
+            upstream_resp.close()
+
+        sys.stdout.write(f"--- Body dump (up to {MAX_DUMP} bytes; got {len(dumped)} bytes) ---\n")
+        if dumped:
             try:
-                for chunk in upstream_resp.iter_content(chunk_size=8192):
-                    if chunk:
-                        yield chunk
-            finally:
-                upstream_resp.close()
+                sys.stdout.write(dumped.decode("utf-8", errors="replace") + "\n")
+            except Exception:
+                sys.stdout.write(dumped[:256].hex() + ("...\n" if len(dumped) > 256 else "\n"))
+        sys.stdout.flush()
+        # ---- END LOG ----
+
+        def generate():
+            for chunk in chunks:
+                yield chunk
 
         return Response(
             stream_with_context(generate()),
@@ -131,7 +165,7 @@ def main() -> int:
     p.add_argument("--upstream", required=True, help="Upstream base URL, e.g. http://example.com:8080")
     p.add_argument("--listen", default="0.0.0.0")
     p.add_argument("--port", type=int, default=8080)
-    p.add_argument("--timeout", type=float, default=30.0)
+    p.add_argument("--timeout", type=float, default=270.0)
     args = p.parse_args()
 
     app = make_app(normalize_upstream(args.upstream), args.timeout)

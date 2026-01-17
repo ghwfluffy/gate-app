@@ -20,10 +20,10 @@ Research
     [x] Test opening gate
 [x] Wireshark DNS being used
     api-v2.gatewise.com:443
-[\] Setup MITM
+[x] Setup MITM
     [x] Generate signing CAs
     [x] Setup MITM nginx
-        [\] Setup python proxy sniffer
+        [x] Setup python proxy sniffer
     [x] Install CAs into Android VM
         [x] VM set to bridged
         [x] Enable Debug USB
