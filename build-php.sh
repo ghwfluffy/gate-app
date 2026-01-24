@@ -5,8 +5,11 @@ set -eu -o pipefail
 TOPDIR="$(dirname "${0}")"
 
 WWW="${TOPDIR}/www"
+FINAL="${WWW}/index.php"
+
 REFRESH_TOKEN_FILE="${TOPDIR}/secrets/refresh-token.txt"
 WEB_API_KEY_FILE="${TOPDIR}/secrets/web-api-key.txt"
+PHP_PW_FILE="${TOPDIR}/secrets/php-pw.txt"
 if [ ! -f "${REFRESH_TOKEN_FILE}" ]; then
     echo "No refresh token found." 1>&2
     echo "You must first login to the Gatewise app and steal the Firebrase refresh token from the filesystem." 1>&2
@@ -20,7 +23,12 @@ fi
 
 REFRESH_TOKEN="$(cat "${REFRESH_TOKEN_FILE}")"
 WEB_API_KEY="$(cat "${WEB_API_KEY_FILE}")"
-PASSWORD="$(dd if=/dev/urandom bs=1 count=16 2> /dev/null | base64 | sed 's;[+/=]*;;g')"
+if [ -f "${PHP_PW_FILE}" ]; then
+    PASSWORD="$(cat "${PHP_PW_FILE}")"
+else
+    PASSWORD="$(dd if=/dev/urandom bs=1 count=16 2> /dev/null | base64 | sed 's;[+/=]*;;g')"
+    echo "${PASSWORD}" > "${PHP_PW_FILE}"
+fi
 
 PHP_HEADER="$(cat << PHP
 <?php
@@ -97,7 +105,6 @@ APP_MANIFEST="$(cat << MAN
 MAN
 )"
 
-FINAL="${WWW}/index.php"
 echo "${PHP_HEADER}" > "${FINAL}"
 cat "${WWW}/index.html" | sed "s;%REFRESH_TOKEN%;${REFRESH_TOKEN};g" | sed "s;%WEB_API_KEY%;${WEB_API_KEY};g" >> "${FINAL}"
 
