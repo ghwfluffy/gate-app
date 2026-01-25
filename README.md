@@ -2,8 +2,9 @@
 
 Create a fake Gatewise app I can share with family that will let them open the gate to my apartment complex
 
-![Gate App](./docs/01-homescreen.png)
-![Open Gate](./docs/02-app.png) ![Opened Gate](./docs/03-open.png)
+![Gate App](./imgs/demo/homescreen.png)
+
+![Open Gate](./imgs/demo/app.gif)
 
 ## Repository layout
 
@@ -14,6 +15,7 @@ Create a fake Gatewise app I can share with family that will let them open the g
 - curl - PoC in curl
 - apk - Gatewise app source (Removed to reduce repo size)
 - www - The html/js app to open the gate (Requires embedding %REFRESH_TOKEN% with real value)
+- imgs - Workspace for making and manipulating images
 - build-php.sh - Embed the refresh token into the html/js file and wrap it in a PHP password protection
 
 ## Secrets
