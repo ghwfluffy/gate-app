@@ -9,83 +9,117 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Gate Open</title>
-  <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; }
-    #msg { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
-    .ok { color: #0a7a0a; }
-    .err { color: #b00020; }
-    button {
-      background: #2f2fd3; color: #fff; border: 0; border-radius: 10px;
-      padding: 12px 20px; font-size: 16px; font-weight: 700; cursor: pointer;
-      width: 140px;
-      height: 100px;
-    }
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
-    .button.success { background: #25b325; }
-    .button.failed { background: #d32f2f; }
-    .row { display: flex; align-items: center; gap: 12px; padding: 12px 20px; }
-
-    .throbber { visibility: hidden; }
-    .throbber.on { visibility: visible; }
-
-    pre { background: #f6f8fa; padding: 10px; border-radius: 10px; overflow: auto; }
-  </style>
+  <link rel="stylesheet" href="static/default.css">
+  <link rel="stylesheet" href="static/control-panel.css">
+  <title>Ghw Gate</title>
 </head>
 <body>
-  <div class="row">
-    <div id="msg"></div>
-  </div>
-
-  <div class="row">
-    <button class="button" id="openRight">Open Right Gate</button>
-    <img class="throbber" src="cats.gif" id="throbberRight" height=100px />
-  </div>
-  <div class="row">
-    <button class="button" id="openLeft">Open Left Gate</button>
-    <img class="throbber" src="cats.gif" id="throbberLeft" height=100px />
-  </div>
-  <div class="row">
-    <button class="button" id="openGym">Open Gym</button>
-    <img class="throbber" src="flex.gif" id="throbberGym" height=100px />
-  </div>
-
-  <pre id="debug" style="display:none;"></pre>
+  <center>
+    <div id="phone" class="phone android">
+      <div class="control-panel">
+        <img src="static/background.png"/>
+        <div class="overlay">
+          <div id="msg" class="msg-box"></div>
+          <div id="mainGateHotspot" class="hotspot main"></div>
+          <div id="leftGateHotspot" class="hotspot left"></div>
+          <div id="gymGateHotspot" class="hotspot gym"></div>
+        </div>
+      </div>
+      <div id="error"></div>
+    </div>
+  </center>
 
   <script>
+    // Don't send API requests for real & use emulated phone size
+    const DEBUG = false;
+
     // ======= HARDCODED SECRETS (be careful: this is visible to anyone who can view the page source) =======
     const WEB_API_KEY   = "%WEB_API_KEY%";
     const REFRESH_TOKEN = "%REFRESH_TOKEN%";
     // ================================================================================================
 
-    const openRight = document.getElementById("openRight");
-    const openLeft = document.getElementById("openLeft");
-    const openGym = document.getElementById("openGym");
-
-    const throbberRight = document.getElementById("throbberRight");
-    const throbberLeft = document.getElementById("throbberLeft");
-    const throbberGym = document.getElementById("throbberGym");
-
-    const msgEl   = document.getElementById("msg");
-    const debugEl = document.getElementById("debug");
-
-    function setLoading(btn, throbber, isLoading) {
-      btn.disabled = isLoading;
-      throbber.classList.toggle("on", isLoading);
+    // Remove phone div
+    if (!DEBUG) {
+      document.getElementById("phone").className = "";
     }
 
-    function resetSuccess(btn) {
-      btn.classList.toggle("success", false);
-      btn.classList.toggle("failed", false);
-    }
-    function setSuccess(btn, success) {
-      btn.classList.toggle(success ? "success" : "failed", true);
-      setTimeout(() => { resetSuccess(btn); }, 5000);
+    const openDoor = async (doorId) => {
+      if (DEBUG) {
+        function sleep(ms) {
+          return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        await sleep(5000);
+        //return "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book";
+        return null;
+      }
+
+      try {
+        // 1) Exchange refresh token for access token
+        const tokenUrl = `https://securetoken.googleapis.com/v1/token?key=${encodeURIComponent(WEB_API_KEY)}`;
+
+        const form = new URLSearchParams();
+        form.set("grant_type", "refresh_token");
+        form.set("refresh_token", REFRESH_TOKEN);
+
+        const tokenResp = await fetch(tokenUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: form.toString(),
+        });
+
+        const tokenJson = await tokenResp.json().catch(() => ({}));
+        if (!tokenResp.ok) {
+          // Google error shape varies; try to surface something useful
+          const detail = tokenJson?.error?.message || tokenJson?.error || JSON.stringify(tokenJson);
+          throw new Error(`Token request failed (${tokenResp.status}): ${detail}`);
+        }
+
+        const accessToken = tokenJson.access_token;
+        if (!accessToken) throw new Error("Token response missing access_token");
+
+        // 2) Call open endpoint with Bearer auth
+        const openResp = await fetch(`https://api-v2.gatewise.com/api/v1/user/community/2524/access_point/${doorId}/open`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${accessToken}`,
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({}),
+        });
+
+        const openJson = await openResp.json().catch(() => ({}));
+        if (!openResp.ok) {
+          const detail = openJson?.error || openJson?.message || JSON.stringify(openJson);
+          throw new Error(`Open request failed (${openResp.status}): ${detail}`);
+        }
+
+        if (openJson?.status !== "ok") {
+          throw new Error(`Unexpected response: ${JSON.stringify(openJson)}`);
+        }
+      } catch (e) {
+        return e;
+      }
     }
 
+    const errEl = document.getElementById("error");
+    function setErr(text) {
+      const msg = text ? ((text && text.message) ? text.message : String(text)) : "";
+      errEl.textContent = msg;
+    }
+
+    const msgEl = document.getElementById("msg");
     function setMsg(text, cls) {
-      msgEl.className = cls || "";
-      msgEl.textContent = text || "";
+      msgEl.className = "msg-box " + (cls || "");
+      const pill = document.createElement("span");
+      pill.textContent = text || "";
+      msgEl.innerHTML = "";
+      msgEl.appendChild(pill);
+
+      // Reset error
+      if (cls === "ok") {
+        setErr("");
+      }
     }
 
     function resetMsg() {
@@ -98,73 +132,47 @@
     }
 
     resetMsg();
-    function makeOpenHandler({ doorId, doorName, throbber }) {
-      return async (ev) => {
-        resetMsg();
-        const btn = ev.currentTarget;
-        setLoading(btn, throbber, true);
-        resetSuccess(btn);
 
-        try {
-          // 1) Exchange refresh token for access token
-          const tokenUrl = `https://securetoken.googleapis.com/v1/token?key=${encodeURIComponent(WEB_API_KEY)}`;
+    function bindHotspot(doorName, doorId, div, pressed) {
+      const hotspot = document.getElementById(div);
 
-          const form = new URLSearchParams();
-          form.set("grant_type", "refresh_token");
-          form.set("refresh_token", REFRESH_TOKEN);
+      (new Image()).src = pressed;
 
-          const tokenResp = await fetch(tokenUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: form.toString(),
-          });
+      function setBg(element, url) {
+        element.style.backgroundImage = `url("${url}")`;
+      }
 
-          const tokenJson = await tokenResp.json().catch(() => ({}));
-          if (!tokenResp.ok) {
-            // Google error shape varies; try to surface something useful
-            const detail = tokenJson?.error?.message || tokenJson?.error || JSON.stringify(tokenJson);
-            throw new Error(`Token request failed (${tokenResp.status}): ${detail}`);
-          }
+      function resetBg(element) {
+        setBg(element, "");
+      }
 
-          const accessToken = tokenJson.access_token;
-          if (!accessToken) throw new Error("Token response missing access_token");
+      hotspot.addEventListener("pointerdown", async (e) => {
+        // Prevent multiple clicks
+        e.preventDefault();
+        const backup_events = hotspot.style.pointerEvents;
+        hotspot.style.pointerEvents = "none";
 
-          // 2) Call open endpoint with Bearer auth
-          const openResp = await fetch(`https://api-v2.gatewise.com/api/v1/user/community/2524/access_point/${doorId}/open`, {
-            method: "POST",
-            headers: {
-              "Authorization": `Bearer ${accessToken}`,
-              "Accept": "application/json",
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({}),
-          });
+        setMsg(`Opening ${doorName}`, "ok");
 
-          const openJson = await openResp.json().catch(() => ({}));
-          if (!openResp.ok) {
-            const detail = openJson?.error || openJson?.message || JSON.stringify(openJson);
-            throw new Error(`Open request failed (${openResp.status}): ${detail}`);
-          }
-
-          if (openJson?.status === "ok") {
-            setMsg(`${doorName} opened`, "ok");
-            setSuccess(btn, true);
-          } else {
-            throw new Error(`Unexpected response: ${JSON.stringify(openJson)}`);
-            setSuccess(btn, false);
-          }
-
-        } catch (e) {
-          showError(e);
-          setSuccess(btn, false);
-        } finally {
-          setLoading(btn, throbber, false);
+        // Open door
+        setBg(hotspot, pressed);
+        err = await openDoor(doorId);
+        if (err) {
+          setErr(err);
+          setMsg(`Failed to open ${doorName}`);
+        } else {
+          setMsg(`${doorName} opened`, "ok");
         }
-      };
+        resetBg(hotspot);
+
+        // Restore clicks
+        hotspot.style.pointerEvents = backup_events;
+      });
     }
-    openRight.addEventListener("click", makeOpenHandler({doorId: 8211, doorName: "Right gate", throbber: throbberRight}));
-    openLeft.addEventListener("click", makeOpenHandler({doorId: 8210, doorName: "Left gate", throbber: throbberLeft}));
-    openGym.addEventListener("click", makeOpenHandler({doorId: 8209, doorName: "Gym door", throbber: throbberGym}));
+
+    bindHotspot("Right Gate", 8211, "mainGateHotspot", "static/unlock-right-pressed.png");
+    bindHotspot("Left Gate", 8210, "leftGateHotspot", "static/unlock-left-pressed.png");
+    bindHotspot("Gym Door", 8209, "gymGateHotspot", "static/unlock-gym-pressed.png");
   </script>
 </body>
 </html>

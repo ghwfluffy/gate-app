@@ -1,4 +1,5 @@
 *.swp
+outfile.tmp
 bak/
 pki/data
 nginx/venv

@@ -1,0 +1,140 @@
+:root {
+  /* Background "art" size this layout was designed around */
+  --art-w: 1024;
+  --art-h: 1536;
+  /* Button sizes */
+  --btn-x: 70;
+  --btn-w: 891;
+  --btn-h: 184;
+  /* Button positions */
+  --main-btn-y: 300;
+  --left-btn-y: 500;
+  --gym-btn-y: 700;
+  /* Message div */
+  --msg-y: 30;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+/* centered phone-sized frame */
+.phone {
+  position: relative;
+  overflow: hidden;
+  border-radius: 32px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.55);
+}
+.phone.android {
+  width: 360px;
+  height: 800px;
+}
+.phone.iphone {
+  width: 390px;
+  height: 844px;
+}
+.control-panel {
+  position: relative;
+  width: 100%;
+}
+.control-panel img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+#error {
+  margin-top: 10px;
+  text-align: center;
+  color: #e04646;
+  font-weight: 600;
+  min-height: 1.2em;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none; /* allow only hotspots to receive clicks */
+}
+
+.msg-box {
+  position: absolute;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  left: calc(var(--btn-x) / var(--art-w) * 100%);
+  width: calc(var(--btn-w) / var(--art-w) * 100%);
+  height: calc(var(--btn-h) / var(--art-h) * 100%);
+  top: calc(var(--msg-y) / var(--art-h) * 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f7f9ff;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.msg-box > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px;
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    rgba(8, 16, 40, 0.6),
+    rgba(90, 120, 200, 0.35)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(6px);
+}
+
+.msg-box.ok > span {
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.3),
+    0 0 14px rgba(60, 255, 140, 0.55);
+  border-color: rgba(120, 255, 190, 0.6);
+}
+
+.msg-box.err > span {
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.3),
+    0 0 14px rgba(255, 90, 90, 0.6);
+  border-color: rgba(255, 140, 140, 0.6);
+}
+
+/* Clickable hotspot over "UNLOCK MAIN GATE" */
+.hotspot {
+  position: absolute;
+  pointer-events: auto;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  border-radius: 14px;
+  background-color: transparent;
+  left: calc(var(--btn-x) / var(--art-w) * 100%);
+  width: calc(var(--btn-w) / var(--art-w) * 100%);
+  height: calc(var(--btn-h) / var(--art-h) * 100%);
+}
+
+.hotspot.main {
+  top: calc(var(--main-btn-y) / var(--art-h) * 100%);
+}
+
+.hotspot.left {
+  top: calc(var(--left-btn-y) / var(--art-h) * 100%);
+}
+
+.hotspot.gym {
+  top: calc(var(--gym-btn-y) / var(--art-h) * 100%);
+}
+
+/* Optional: visual debug outline (toggle in JS) */
+.debug {
+  outline: 2px dashed rgba(255, 255, 255, 0.6);
+  background-color: rgba(255, 255, 255, 0.05);
+}
