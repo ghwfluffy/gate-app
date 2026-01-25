@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Door UI Mock</title>
+    <style>
+      :root {
+        /* Background "art" size this layout was designed around */
+        --art-w: 1024;
+        --art-h: 1536;
+        /* Button sizes */
+        --btn-x: 70;
+        --btn-w: 891;
+        --btn-h: 184;
+        /* Button positions */
+        --main-btn-y: 300;
+        --left-btn-y: 500;
+        --gym-btn-y: 700;
+      }
+
+      html, body {
+        height: 100%;
+        margin: 0;
+      }
+
+      /* centered phone-sized frame */
+      .phone {
+        position: relative;
+        overflow: hidden;
+        border-radius: 32px;
+        box-shadow: 0 20px 60px rgba(0,0,0,.55);
+      }
+      .phone.android {
+        width: 360px;
+        height: 800px;
+      }
+      .phone.iphone {
+        width: 390px;
+        height: 844px;
+      }
+      .control-panel {
+        position: relative;
+        width: 100%;
+      }
+      .control-panel img {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        pointer-events: none; /* allow only hotspots to receive clicks */
+      }
+
+      /* Clickable hotspot over "UNLOCK MAIN GATE" */
+      .hotspot {
+        position: absolute;
+        pointer-events: auto;
+        cursor: pointer;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        border-radius: 14px;
+        background-color: transparent;
+        left: calc(var(--btn-x) / var(--art-w) * 100%);
+        width: calc(var(--btn-w) / var(--art-w) * 100%);
+        height: calc(var(--btn-h) / var(--art-h) * 100%);
+      }
+
+      .hotspot.main {
+        top: calc(var(--main-btn-y) / var(--art-h) * 100%);
+      }
+
+      .hotspot.left {
+        top: calc(var(--left-btn-y) / var(--art-h) * 100%);
+      }
+
+      .hotspot.gym {
+        top: calc(var(--gym-btn-y) / var(--art-h) * 100%);
+      }
+
+      /* Optional: visual debug outline (toggle in JS) */
+      .debug {
+        outline: 2px dashed rgba(255, 255, 255, 0.6);
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+    </style>
+  </head>
+
+  <body>
+    <center>
+      <div id="phone" class="phone android">
+        <div class="control-panel">
+          <img src="background.png"/>
+          <div class="overlay">
+            <div id="mainGateHotspot" class="hotspot main"></div>
+            <div id="leftGateHotspot" class="hotspot left"></div>
+            <div id="gymGateHotspot" class="hotspot gym"></div>
+          </div>
+        </div>
+      </div>
+    </center>
+
+    <script>
+      const BG_NORMAL = "./background.png";
+
+      const phone = document.getElementById("phone");
+
+      function bindHotspot(div, depressed) {
+        const hotspot = document.getElementById(div);
+
+        (new Image()).src = depressed;
+
+        function setBg(element, url) {
+          element.style.backgroundImage = `url("${url}")`;
+        }
+
+        hotspot.addEventListener("pointerdown", (e) => { e.preventDefault(); setBg(e.currentTarget, depressed); });
+        const revert = () => setBg(hotspot, "");
+        hotspot.addEventListener("pointerup", revert);
+      }
+      bindHotspot("mainGateHotspot", "unlock-right-pressed.png");
+      bindHotspot("leftGateHotspot", "unlock-left-pressed.png");
+      bindHotspot("gymGateHotspot", "unlock-gym-pressed.png");
+    </script>
+  </body>
+</html>
