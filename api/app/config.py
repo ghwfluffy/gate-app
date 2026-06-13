@@ -1,0 +1,93 @@
+from __future__ import annotations
+
+from functools import lru_cache
+from pathlib import Path
+from secrets import token_urlsafe
+from urllib.parse import urlsplit
+
+from pydantic import field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+APP_DIR = Path(__file__).resolve().parents[2]
+WWW_DIR = APP_DIR / "www"
+
+
+def normalize_path_prefix(value: str) -> str:
+    trimmed = value.strip()
+    if trimmed in {"", "/"}:
+        return ""
+    with_leading_slash = trimmed if trimmed.startswith("/") else f"/{trimmed}"
+    return with_leading_slash.rstrip("/")
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(extra="ignore")
+
+    app_env: str = "development"
+    app_name: str = "Apartment Gate"
+    app_base_path: str = "/gate"
+    public_url: str = "http://localhost:8000"
+    auth_base_url: str = "/auth"
+    oauth_server_base_url: str | None = None
+    oauth_client_id: str = "apartment-gate"
+    oauth_scope: str = "openid profile"
+    oauth_state_cookie_name: str = "apartment_gate_oauth_state"
+    session_cookie_name: str = "apartment_gate_session"
+    session_duration_minutes: int = 60
+    session_key: str | None = None
+    gatewise_web_api_key: str = ""
+    gatewise_refresh_token: str = ""
+    gatewise_community_id: str = "2524"
+
+    @field_validator("public_url")
+    @classmethod
+    def public_url_must_be_origin(cls, value: str) -> str:
+        parsed = urlsplit(value.rstrip("/"))
+        if parsed.path not in {"", "/"}:
+            raise ValueError("PUBLIC_URL must be only the scheme and host; put prefixes in APP_BASE_PATH.")
+        return value.rstrip("/")
+
+    @property
+    def normalized_app_base_path(self) -> str:
+        return normalize_path_prefix(self.app_base_path)
+
+    @property
+    def public_origin(self) -> str:
+        return self.public_url.rstrip("/")
+
+    @property
+    def public_base_url(self) -> str:
+        return f"{self.public_origin}{self.normalized_app_base_path}"
+
+    @property
+    def normalized_auth_base_url(self) -> str:
+        raw = self.auth_base_url.rstrip("/")
+        if raw.startswith("http://") or raw.startswith("https://"):
+            return raw
+        prefix = normalize_path_prefix(raw)
+        return f"{self.public_origin}{prefix}"
+
+    @property
+    def normalized_oauth_server_base_url(self) -> str:
+        raw = (self.oauth_server_base_url or self.auth_base_url).rstrip("/")
+        if raw.startswith("http://") or raw.startswith("https://"):
+            return raw
+        prefix = normalize_path_prefix(raw)
+        return f"{self.public_origin}{prefix}"
+
+    @property
+    def oauth_redirect_uri(self) -> str:
+        return f"{self.public_base_url}/auth/oauth/callback"
+
+    @property
+    def cookie_secure(self) -> bool:
+        return self.app_env == "production"
+
+
+@lru_cache
+def get_settings() -> Settings:
+    settings = Settings()
+    if not settings.session_key:
+        settings.session_key = token_urlsafe(32)
+    return settings
