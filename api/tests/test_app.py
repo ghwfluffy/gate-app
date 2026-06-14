@@ -67,4 +67,5 @@ def test_authenticated_index_includes_federated_banner() -> None:
     assert response.status_code == 200
     assert "<ghwiz-federated-banner" in response.text
     assert 'current-app-slug="apartment-gate"' in response.text
+    assert 'account-settings-url="/ghwidx?tab=account-settings"' in response.text
     assert "/gate/static/federated-banner.js" in response.text
