@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import html as html_lib
 import json
 import mimetypes
 import secrets
@@ -19,6 +20,14 @@ from app.config import WWW_DIR, Settings, get_settings
 
 
 app = FastAPI(title="Apartment Gate")
+BANNER_SCRIPT_PATH = (
+    Path(__file__).resolve().parents[2]
+    / "vendor"
+    / "federated-banner"
+    / "dist"
+    / "browser"
+    / "federated-banner.iife.js"
+)
 
 
 def serializer(settings: Settings) -> URLSafeTimedSerializer:
@@ -176,6 +185,13 @@ async def oauth_callback(
     return response
 
 
+@app.get("/auth/logout")
+def logout(settings: Annotated[Settings, Depends(get_settings)]) -> RedirectResponse:
+    response = RedirectResponse(app_url(settings, "/"), status_code=302)
+    response.delete_cookie(settings.session_cookie_name, path=settings.normalized_app_base_path or "/")
+    return response
+
+
 @app.get("/manifest.json")
 def manifest(
     _: Annotated[dict[str, object], Depends(require_user)],
@@ -207,17 +223,41 @@ def manifest(
 
 @app.get("/")
 def index(
-    _: Annotated[dict[str, object], Depends(require_user)],
+    user: Annotated[dict[str, object], Depends(require_user)],
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> HTMLResponse:
     template = (WWW_DIR / "index.html").read_text(encoding="utf-8")
     base = settings.normalized_app_base_path or ""
+    display_name = str(user.get("name") or user.get("preferred_username") or "Account")
+    banner_markup = f"""
+  <ghwiz-federated-banner
+    id="federated-banner"
+    app-name="Apartment Gate"
+    app-url="{html_lib.escape(base or '/', quote=True)}"
+    current-app-slug="apartment-gate"
+    account-settings-url="{html_lib.escape(settings.account_settings_url, quote=True)}"
+  ></ghwiz-federated-banner>
+  <script>
+    const federatedBanner = document.querySelector("#federated-banner");
+    if (federatedBanner) {{
+      federatedBanner.sites = {json.dumps(settings.federated_banner_sites)};
+      federatedBanner.user = {json.dumps({"displayName": display_name, "username": str(user.get("preferred_username") or "")})};
+      federatedBanner.addEventListener("federated-banner-action", (event) => {{
+        if (event.detail?.action === "sign-out") {{
+          window.location.assign("{html_lib.escape(base or '', quote=True)}/auth/logout");
+        }}
+      }});
+    }}
+  </script>
+"""
     html = (
         template.replace("%WEB_API_KEY%", settings.gatewise_web_api_key)
         .replace("%REFRESH_TOKEN%", settings.gatewise_refresh_token)
         .replace("/gate/", f"{base}/")
         .replace("/gate/manifest.json", f"{base}/manifest.json")
         .replace("community/2524/", f"community/{settings.gatewise_community_id}/")
+        .replace("</head>", f'  <script src="{base}/static/federated-banner.js"></script>\n</head>')
+        .replace("<body>", f"<body>{banner_markup}")
     )
     return HTMLResponse(html)
 
@@ -227,6 +267,10 @@ def static_asset(
     asset_path: str,
     _: Annotated[dict[str, object], Depends(require_user)],
 ) -> Response:
+    if asset_path == "federated-banner.js":
+        if not BANNER_SCRIPT_PATH.is_file():
+            raise HTTPException(status_code=404)
+        return Response(BANNER_SCRIPT_PATH.read_bytes(), media_type="text/javascript")
     root = (WWW_DIR / "static").resolve()
     path = (root / asset_path).resolve()
     if root not in path.parents and path != root:

@@ -10,5 +10,6 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
 COPY api/ /workspace/api/
 COPY www/ /workspace/www/
+COPY vendor/federated-banner/ /workspace/vendor/federated-banner/
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
