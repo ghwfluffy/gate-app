@@ -41,9 +41,12 @@ class Settings(BaseSettings):
     session_cookie_name: str = "apartment_gate_session"
     session_duration_minutes: int = 60
     session_key: str | None = None
+    agent_integration_token_secret: str = ""
     gatewise_web_api_key: str = ""
     gatewise_refresh_token: str = ""
+    gatewise_api_base_url: str = "https://api-v2.gatewise.com"
     gatewise_community_id: str = "2524"
+    gatewise_right_gate_access_point_id: str = ""
 
     @field_validator("public_url")
     @classmethod

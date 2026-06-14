@@ -12,10 +12,11 @@ from typing import Annotated
 from urllib.parse import urlencode
 
 import httpx
-from fastapi import Depends, FastAPI, HTTPException, Request, Response
+from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from itsdangerous import BadSignature, URLSafeTimedSerializer
 
+from app.agent_tokens import AgentTokenClaims, require_agent_scope
 from app.config import WWW_DIR, Settings, get_settings
 
 
@@ -47,6 +48,10 @@ def app_url(settings: Settings, path: str = "") -> str:
     return f"{settings.normalized_app_base_path}{suffix}" or "/"
 
 
+def oauth_auto_retry_cookie_name(settings: Settings) -> str:
+    return f"{settings.oauth_state_cookie_name}_auto_retry"
+
+
 def safe_next(settings: Settings, next_path: str | None) -> str:
     if not next_path:
         return app_url(settings, "/")
@@ -72,6 +77,35 @@ def signed_cookie(
     return payload if isinstance(payload, dict) else None
 
 
+def clear_oauth_auto_retry_cookie(response: Response, settings: Settings) -> None:
+    response.delete_cookie(oauth_auto_retry_cookie_name(settings), path=settings.normalized_app_base_path or "/")
+
+
+def oauth_state_retry_redirect(request: Request, settings: Settings) -> RedirectResponse:
+    retry_cookie = oauth_auto_retry_cookie_name(settings)
+    if request.cookies.get(retry_cookie) == "1":
+        response = RedirectResponse(app_url(settings, "/?oauth_error=oauth_state"), status_code=302)
+        clear_oauth_auto_retry_cookie(response, settings)
+        response.delete_cookie(settings.oauth_state_cookie_name, path=settings.normalized_app_base_path or "/")
+        return response
+
+    response = RedirectResponse(
+        app_url(settings, f"/auth/oauth/login?{urlencode({'next': app_url(settings, '/')})}"),
+        status_code=302,
+    )
+    response.set_cookie(
+        retry_cookie,
+        "1",
+        max_age=60,
+        httponly=True,
+        secure=settings.cookie_secure,
+        samesite="lax",
+        path=settings.normalized_app_base_path or "/",
+    )
+    response.delete_cookie(settings.oauth_state_cookie_name, path=settings.normalized_app_base_path or "/")
+    return response
+
+
 def require_user(
     request: Request,
     settings: Annotated[Settings, Depends(get_settings)],
@@ -86,9 +120,97 @@ def require_user(
     raise HTTPException(status_code=307, headers={"Location": app_url(settings, f"/auth/oauth/login?{urlencode({'next': str(request.url.path)})}")})
 
 
+def require_gatewise_settings(settings: Settings) -> None:
+    if (
+        not settings.gatewise_web_api_key
+        or not settings.gatewise_refresh_token
+        or not settings.gatewise_community_id
+        or not settings.gatewise_right_gate_access_point_id
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Gate provider credentials are not configured.",
+        )
+
+
+async def gatewise_access_token(settings: Settings) -> str:
+    require_gatewise_settings(settings)
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            response = await client.post(
+                "https://securetoken.googleapis.com/v1/token",
+                params={"key": settings.gatewise_web_api_key},
+                headers={"Content-Type": "application/x-www-form-urlencoded"},
+                data={
+                    "grant_type": "refresh_token",
+                    "refresh_token": settings.gatewise_refresh_token,
+                },
+            )
+            response.raise_for_status()
+    except httpx.HTTPError as error:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Gate provider token request failed.",
+        ) from error
+    access_token = response.json().get("access_token")
+    if not isinstance(access_token, str) or not access_token:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Gate provider token response was invalid.",
+        )
+    return access_token
+
+
+async def open_gatewise_access_point(settings: Settings, access_point_id: str) -> int:
+    access_token = await gatewise_access_token(settings)
+    base_url = settings.gatewise_api_base_url.rstrip("/")
+    url = (
+        f"{base_url}/api/v1/user/community/{settings.gatewise_community_id}"
+        f"/access_point/{access_point_id}/open"
+    )
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            response = await client.post(
+                url,
+                headers={
+                    "Accept": "application/json",
+                    "Authorization": f"Bearer {access_token}",
+                    "Cache-Control": "no-cache",
+                },
+                content="{}",
+            )
+    except httpx.HTTPError as error:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Gate provider open request failed.",
+        ) from error
+    if response.status_code < 200 or response.status_code >= 300:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Gate provider rejected open request.",
+        )
+    return response.status_code
+
+
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.post("/api/agent/open-right-gate")
+async def open_right_gate_for_agent(
+    _: Annotated[AgentTokenClaims, Depends(require_agent_scope("apartment_gate.open_right_gate"))],
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> dict[str, object]:
+    provider_status = await open_gatewise_access_point(
+        settings,
+        settings.gatewise_right_gate_access_point_id,
+    )
+    return {
+        "status": "opened",
+        "access_point": "right_gate",
+        "provider_status": provider_status,
+    }
 
 
 @app.get("/auth/oauth/login")
@@ -138,7 +260,7 @@ async def oauth_callback(
     state_cookie = request.cookies.get(settings.oauth_state_cookie_name)
     state_payload = signed_cookie(state_cookie, settings, max_age_seconds=600)
     if not code or not state or not state_payload or state_payload.get("state") != state:
-        return RedirectResponse(app_url(settings, "/?oauth_error=oauth_state"), status_code=302)
+        return oauth_state_retry_redirect(request, settings)
 
     try:
         async with httpx.AsyncClient(timeout=15) as client:
@@ -163,10 +285,12 @@ async def oauth_callback(
     except Exception:
         response = RedirectResponse(app_url(settings, "/?oauth_error=oauth_failed"), status_code=302)
         response.delete_cookie(settings.oauth_state_cookie_name, path=settings.normalized_app_base_path or "/")
+        clear_oauth_auto_retry_cookie(response, settings)
         return response
 
     response = RedirectResponse(str(state_payload.get("next") or app_url(settings, "/")), status_code=302)
     response.delete_cookie(settings.oauth_state_cookie_name, path=settings.normalized_app_base_path or "/")
+    clear_oauth_auto_retry_cookie(response, settings)
     response.set_cookie(
         settings.session_cookie_name,
         serializer(settings).dumps(
