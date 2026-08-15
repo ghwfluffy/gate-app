@@ -26,6 +26,11 @@ Once you get the Firebase ID refresh token, put it in ./secrets/refresh-token.tx
 
 ## Production
 
+The current FastAPI deployment uses central OAuth, an app-scoped signed
+session, and the shared federated banner. A parent deployment may provide one
+`FEDERATED_APPS` JSON inventory so the app switcher contains every enabled app;
+the older individual base URL fields remain a standalone fallback.
+
 Running ./compile.sh will build the final PHP file with the refresh token embedded and a random password required to access
 
 Ship the www to /gate/ on your PHP host and then access it at /gate?pw=${random-password}

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from fastapi.testclient import TestClient
 
 from app.agent_tokens import encode_agent_token
@@ -103,6 +104,18 @@ def test_authenticated_index_includes_federated_banner() -> None:
     assert 'current-app-slug="apartment-gate"' in response.text
     assert 'account-settings-url="/ghwidx?tab=account-settings"' in response.text
     assert "/gate/static/federated-banner.js" in response.text
+
+
+def test_configured_federated_inventory_replaces_legacy_partial_list() -> None:
+    settings = Settings(
+        app_env="test",
+        federated_apps=json.dumps([
+            {"slug": "notes", "name": "My Notes", "baseUrl": "/notes", "description": "Lists"},
+            {"slug": "omni-dev", "name": "Omni Dev", "baseUrl": "/dev"},
+        ]),
+    )
+
+    assert [site["slug"] for site in settings.federated_banner_sites] == ["notes", "omni-dev"]
 
 
 def test_oauth_callback_retries_once_when_state_is_missing() -> None:

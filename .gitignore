@@ -1,4 +1,9 @@
 *.swp
+*.py[cod]
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+api/.venv/
 outfile.tmp
 bak/
 pki/data
